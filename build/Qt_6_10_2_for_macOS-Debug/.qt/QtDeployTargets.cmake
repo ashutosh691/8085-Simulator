@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_8085Simulator_FILE /Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator)
+set(__QT_DEPLOY_TARGET_8085Simulator_TYPE EXECUTABLE)

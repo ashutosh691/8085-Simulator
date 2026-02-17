@@ -1,0 +1,17 @@
+# ninja log v6
+1	35	1771334851277923481	8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+1	35	1771334851277923481	8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+1	35	1771334851277923481	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+1	35	1771334851277923481	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+36	53	1771334851283401181	CMakeFiles/8085Simulator.dir/8085Simulator_autogen/mocs_compilation.cpp.o	7ac8d5762e877332
+36	61	1771334851283616605	CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o	188d1c35c208ecb4
+36	229	1771334851283700692	CMakeFiles/8085Simulator.dir/memory/memory.cpp.o	b32066c47fd37cfd
+36	253	1771334851283525435	CMakeFiles/8085Simulator.dir/main.cpp.o	8b251ed1aff52c4f
+253	284	1771334851500965378	8085Simulator	49768889f8583e16
+7	29	1771335145141705938	8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+7	29	1771335145141705938	8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+7	29	1771335145141705938	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+7	29	1771335145141705938	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+29	232	1771335145164068525	CMakeFiles/8085Simulator.dir/main.cpp.o	8b251ed1aff52c4f
+29	235	1771335145164192358	CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o	188d1c35c208ecb4
+235	263	1771335145369468888	8085Simulator	49768889f8583e16
