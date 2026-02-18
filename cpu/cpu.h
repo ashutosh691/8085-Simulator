@@ -19,6 +19,8 @@ public:
     uint16_t PC;
     uint16_t SP;
 
+    bool halted;
+
     //Flags
     struct Flags {
         bool S;   // Sign
@@ -28,7 +30,9 @@ public:
         bool CY;  // Carry
     } flags;
 
-    void execute();
+    void run();
+    void updateArithmeticFlags(uint16_t result);
+    bool calculateParity(uint8_t value);
 };
 
 #endif // CPU_H
