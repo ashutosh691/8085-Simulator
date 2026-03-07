@@ -2,15 +2,35 @@
 #include "memory.h"
 #include <iostream>
 
+/*
+---------------------------------------------------------
+CPU CONSTRUCTOR
+
+Initializes registers and connects the CPU with memory.
+All registers start at 0 and CPU is not halted.
+---------------------------------------------------------
+*/
+
 CPU::CPU(Memory* mem) : memory(mem)
 {
     A = B = C = D = E = H = L = 0;
+
     PC = 0;
     SP = 0;
+
     halted = false;
 
-    flags = {false, false, false, false, false};
+    flags = {false,false,false,false,false};
 }
+
+/*
+---------------------------------------------------------
+updateArithmeticFlags()
+
+Updates CPU flags after arithmetic operations.
+The result is passed as 16-bit so we can detect overflow.
+---------------------------------------------------------
+*/
 
 void CPU::updateArithmeticFlags(uint16_t result)
 {
@@ -18,127 +38,209 @@ void CPU::updateArithmeticFlags(uint16_t result)
 
     flags.CY = (result > 0xFF);
     flags.Z  = (value == 0);
-    flags.S  = (value & 0x80);
-
-    flags.P = calculateParity(value);
+    flags.S  = (value & 0x80) != 0;
+    flags.P  = calculateParity(value);
 }
+
+/*
+---------------------------------------------------------
+calculateParity()
+
+Counts number of set bits in a byte.
+Returns true if number of 1s is even.
+---------------------------------------------------------
+*/
 
 bool CPU::calculateParity(uint8_t value)
 {
     int count = 0;
-    for(int i = 0; i < 8; i++)
-        if(value & (1 << i))
+
+    for(int i=0;i<8;i++)
+        if(value & (1<<i))
             count++;
 
     return (count % 2 == 0);
 }
 
+/*
+---------------------------------------------------------
+getRegister()
+
+Returns value stored in the register specified by code.
+Register codes follow 8085 encoding.
+
+000 -> B
+001 -> C
+010 -> D
+011 -> E
+100 -> H
+101 -> L
+111 -> A
+---------------------------------------------------------
+*/
+
+uint8_t CPU::getRegister(uint8_t code)
+{
+    switch(code)
+    {
+    case 0: return B;
+    case 1: return C;
+    case 2: return D;
+    case 3: return E;
+    case 4: return H;
+    case 5: return L;
+    case 7: return A;
+    default: return 0;
+    }
+}
+
+/*
+---------------------------------------------------------
+setRegister()
+
+Writes a value into the register identified by code.
+---------------------------------------------------------
+*/
+
+void CPU::setRegister(uint8_t code, uint8_t value)
+{
+    switch(code)
+    {
+    case 0: B = value; break;
+    case 1: C = value; break;
+    case 2: D = value; break;
+    case 3: E = value; break;
+    case 4: H = value; break;
+    case 5: L = value; break;
+    case 7: A = value; break;
+    }
+}
+
+/*
+---------------------------------------------------------
+readFromCode()
+
+Reads either:
+• a register value
+• or memory location pointed by HL
+
+Register code 110 represents memory (M).
+---------------------------------------------------------
+*/
+
+uint8_t CPU::readFromCode(uint8_t code)
+{
+    if(code == 6)
+    {
+        uint16_t address = (H<<8) | L;
+        return memory->read(address);
+    }
+
+    return getRegister(code);
+}
+
+/*
+---------------------------------------------------------
+writeFromCode()
+
+Writes either:
+• to register
+• or to memory pointed by HL
+---------------------------------------------------------
+*/
+
+void CPU::writeFromCode(uint8_t code, uint8_t value)
+{
+    if(code == 6)
+    {
+        uint16_t address = (H<<8) | L;
+        memory->write(address,value);
+    }
+    else
+        setRegister(code,value);
+}
+
+/*
+---------------------------------------------------------
+run()
+
+Main CPU loop implementing the instruction cycle:
+
+1. FETCH  -> read opcode from memory
+2. DECODE -> identify instruction type
+3. EXECUTE -> perform the instruction
+
+Execution continues until HLT instruction is encountered.
+---------------------------------------------------------
+*/
+
 void CPU::run()
 {
-    while (!halted)
+    while(!halted)
     {
         uint8_t opcode = memory->read(PC++);
 
-        switch (opcode)
+        /* HLT instruction */
+        if(opcode == 0x76)
         {
-        case 0x76:   // HLT opcode in 8085
-            std::cout << "HLT encountered. Stopping execution.\n";
+            std::cout<<"HLT encountered\n";
             halted = true;
             break;
-
-        case 0x3E:   // MVI A, immediate
-        {
-            uint8_t value = memory->read(PC++);
-            A = value;
-
-            std::cout << "MVI A executed. A = 0x"
-                      << std::hex << (int)A << std::endl;
-            break;
         }
 
-        case 0x06:   // MVI B, immediate
+        /* MVI r,data instruction */
+        if((opcode & 0xC7) == 0x06)
         {
+            uint8_t reg = (opcode>>3) & 7;
             uint8_t value = memory->read(PC++);
-            B = value;
 
-            std::cout << "MVI B executed. B = 0x"
-                      << std::hex << (int)B << std::endl;
-            break;
+            writeFromCode(reg,value);
+            continue;
         }
 
-        case 0x0E:   // MVI C, immediate
+        /* MOV r1,r2 instruction */
+        if((opcode & 0xC0) == 0x40 && opcode != 0x76)
         {
-            uint8_t value = memory->read(PC++);
-            C = value;
+            uint8_t dest = (opcode>>3) & 7;
+            uint8_t src  = opcode & 7;
 
-            std::cout << "MVI C executed. C = 0x"
-                      << std::hex << (int)C << std::endl;
-            break;
+            uint8_t value = readFromCode(src);
+            writeFromCode(dest,value);
+
+            continue;
         }
 
-        case 0x16:   // MVI D, immediate
+        /* ADD instruction group */
+        if((opcode & 0xF8) == 0x80)
         {
-            uint8_t value = memory->read(PC++);
-            D = value;
+            uint8_t src = opcode & 7;
+            uint8_t value = readFromCode(src);
 
-            std::cout << "MVI D executed. D = 0x"
-                      << std::hex << (int)D << std::endl;
-            break;
-        }
+            uint16_t result = A + value;
 
-        case 0x1E:   // MVI E, immediate
-        {
-            uint8_t value = memory->read(PC++);
-            E = value;
-
-            std::cout << "MVI E executed. E = 0x"
-                      << std::hex << (int)E << std::endl;
-            break;
-        }
-
-        case 0x26:   // MVI H, immediate
-        {
-            uint8_t value = memory->read(PC++);
-            H = value;
-
-            std::cout << "MVI H executed. H = 0x"
-                      << std::hex << (int)H << std::endl;
-            break;
-        }
-
-        case 0x2E:   // MVI L, immediate
-        {
-            uint8_t value = memory->read(PC++);
-            L = value;
-
-            std::cout << "MVI L executed. L = 0x"
-                      << std::hex << (int)L << std::endl;
-            break;
-        }
-
-        case 0x80:   // ADD B
-        {
-            uint16_t result = A + B;
             updateArithmeticFlags(result);
             A = result & 0xFF;
 
-            std::cout << "ADD B executed. A = 0x"
-                      << std::hex << (int)A << std::endl;
-            break;
+            continue;
         }
 
+        /* SUB instruction group */
+        if((opcode & 0xF8) == 0x90)
+        {
+            uint8_t src = opcode & 7;
+            uint8_t value = readFromCode(src);
 
+            uint16_t result = A - value;
 
-        default:
-            std::cout << "Unknown opcode: 0x"
-                      << std::hex << (int)opcode << std::endl;
-            halted = true;
-            break;
+            updateArithmeticFlags(result);
+            A = result & 0xFF;
+
+            continue;
         }
+
+        std::cout<<"Unknown opcode: "<<std::hex<<(int)opcode<<"\n";
+        halted = true;
     }
-    std::cout << "Flags -> "
-              << "Z: " << flags.Z << " "
-              << "S: " << flags.S << " "
-              << "P: " << flags.P << " "
-              << "CY: " << flags.CY << "\n";
+
+    std::cout<<"Final A="<<std::hex<<(int)A<<"\n";
 }

@@ -65,3 +65,10 @@
 29	225	1771405460354883742	CMakeFiles/8085Simulator.dir/main.cpp.o	8b251ed1aff52c4f
 29	231	1771405460355011284	CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o	188d1c35c208ecb4
 231	259	1771405460556645815	8085Simulator	49768889f8583e16
+12	48	1772901775104446081	8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+12	48	1772901775104446081	8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+12	48	1772901775104446081	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/timestamp	9bf42b52c62d0a66
+12	48	1772901775104446081	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/mocs_compilation.cpp	9bf42b52c62d0a66
+48	266	1772901775140272324	CMakeFiles/8085Simulator.dir/main.cpp.o	8b251ed1aff52c4f
+48	267	1772901775140434324	CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o	188d1c35c208ecb4
+267	301	1772901775359890064	8085Simulator	49768889f8583e16
