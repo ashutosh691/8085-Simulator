@@ -1,6 +1,8 @@
 #include "cpu.h"
 #include "memory.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 CPU::CPU(Memory* mem) : memory(mem)
 {
@@ -121,6 +123,12 @@ Executes exactly ONE instruction
 void CPU::step()
 {
     uint8_t opcode = memory->read(PC++);
+
+    /* NOP */
+    if(opcode == 0x00)
+    {
+        return;
+    }
 
     /* HLT */
     if(opcode == 0x76)

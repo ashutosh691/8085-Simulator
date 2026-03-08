@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <cstdint>
+#include<string>
 
 class Memory;
 
