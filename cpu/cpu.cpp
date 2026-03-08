@@ -110,8 +110,6 @@ void CPU::run()
         step();
         dumpRegisters();
     }
-
-    dumpRegisters();
 }
 
 /*
