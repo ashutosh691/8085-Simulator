@@ -9,6 +9,7 @@ qt_add_executable(8085Simulator
     main.cpp
     cpu/cpu.h cpu/cpu.cpp
     memory/memory.h memory/memory.cpp
+    assembler/assembler.cpp
 )
 
 target_link_libraries(8085Simulator

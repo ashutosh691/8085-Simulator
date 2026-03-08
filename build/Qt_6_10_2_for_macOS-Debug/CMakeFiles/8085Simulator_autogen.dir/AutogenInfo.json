@@ -276,6 +276,11 @@
 	"SOURCES" : 
 	[
 		[
+			"/Users/ashutoshupreti/Desktop/QTP/8085Simulator/assembler/assembler.cpp",
+			"MU",
+			null
+		],
+		[
 			"/Users/ashutoshupreti/Desktop/QTP/8085Simulator/cpu/cpu.cpp",
 			"MU",
 			null

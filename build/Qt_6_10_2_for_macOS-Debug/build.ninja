@@ -81,6 +81,14 @@ build CMakeFiles/8085Simulator.dir/memory/memory.cpp.o: CXX_COMPILER__8085Simula
   OBJECT_DIR = CMakeFiles/8085Simulator.dir
   OBJECT_FILE_DIR = CMakeFiles/8085Simulator.dir/memory
 
+build CMakeFiles/8085Simulator.dir/assembler/assembler.cpp.o: CXX_COMPILER__8085Simulator_unscanned_Debug /Users/ashutoshupreti/Desktop/QTP/8085Simulator/assembler/assembler.cpp || cmake_object_order_depends_target_8085Simulator
+  DEFINES = -DQT_CORE_LIB
+  DEP_FILE = CMakeFiles/8085Simulator.dir/assembler/assembler.cpp.o.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/8085Simulator_autogen/include -I/Users/ashutoshupreti/Desktop/QTP/8085Simulator/cpu -I/Users/ashutoshupreti/Desktop/QTP/8085Simulator/memory -isystem /Users/ashutoshupreti/Qt/6.10.2/macos/lib/QtCore.framework/Headers -iframework /Users/ashutoshupreti/Qt/6.10.2/macos/lib -isystem /Users/ashutoshupreti/Qt/6.10.2/macos/mkspecs/macx-clang -isystem /Users/ashutoshupreti/Qt/6.10.2/macos/include
+  OBJECT_DIR = CMakeFiles/8085Simulator.dir
+  OBJECT_FILE_DIR = CMakeFiles/8085Simulator.dir/assembler
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target 8085Simulator
@@ -89,7 +97,7 @@ build CMakeFiles/8085Simulator.dir/memory/memory.cpp.o: CXX_COMPILER__8085Simula
 #############################################
 # Link the executable 8085Simulator
 
-build 8085Simulator: CXX_EXECUTABLE_LINKER__8085Simulator_Debug CMakeFiles/8085Simulator.dir/8085Simulator_autogen/mocs_compilation.cpp.o CMakeFiles/8085Simulator.dir/main.cpp.o CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o CMakeFiles/8085Simulator.dir/memory/memory.cpp.o | /Users/ashutoshupreti/Qt/6.10.2/macos/lib/QtCore.framework/Versions/A/QtCore || 8085Simulator_autogen 8085Simulator_autogen_timestamp_deps
+build 8085Simulator: CXX_EXECUTABLE_LINKER__8085Simulator_Debug CMakeFiles/8085Simulator.dir/8085Simulator_autogen/mocs_compilation.cpp.o CMakeFiles/8085Simulator.dir/main.cpp.o CMakeFiles/8085Simulator.dir/cpu/cpu.cpp.o CMakeFiles/8085Simulator.dir/memory/memory.cpp.o CMakeFiles/8085Simulator.dir/assembler/assembler.cpp.o | /Users/ashutoshupreti/Qt/6.10.2/macos/lib/QtCore.framework/Versions/A/QtCore || 8085Simulator_autogen 8085Simulator_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk
   LINK_LIBRARIES = -Wl,-rpath,/Users/ashutoshupreti/Qt/6.10.2/macos/lib  /Users/ashutoshupreti/Qt/6.10.2/macos/lib/QtCore.framework/Versions/A/QtCore  -framework IOKit  -framework DiskArbitration  -framework UniformTypeIdentifiers
   LINK_PATH = -F/Users/ashutoshupreti/Qt/6.10.2/macos/lib

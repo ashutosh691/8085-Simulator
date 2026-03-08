@@ -1,5 +1,6 @@
 8085Simulator_autogen/timestamp: \
 	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/CMakeLists.txt \
+	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/assembler/assembler.cpp \
 	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/.qtc/package-manager/auto-setup.cmake \
 	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/.qtc/package-manager/maintenance_tool_provider.cmake \
 	/Users/ashutoshupreti/Desktop/QTP/8085Simulator/build/Qt_6_10_2_for_macOS-Debug/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake \
