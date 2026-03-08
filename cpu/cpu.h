@@ -94,6 +94,11 @@ private:
 
     // Writes to register OR memory depending on register code
     void writeFromCode(uint8_t code, uint8_t value);
+
+    //Prints values of registers
+    void dumpRegisters();
+
+    void step();
 };
 
 #endif
