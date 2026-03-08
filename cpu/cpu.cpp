@@ -8,7 +8,7 @@ CPU::CPU(Memory* mem) : memory(mem)
 {
     A = B = C = D = E = H = L = 0;
     PC = 0;
-    SP = 0;
+    SP = 0xFFFF;
     halted = false;
 
     flags = {false,false,false,false,false};
@@ -108,6 +108,7 @@ void CPU::run()
     while(!halted)
     {
         step();
+        dumpRegisters();
     }
 
     dumpRegisters();
@@ -124,11 +125,14 @@ void CPU::step()
 {
     uint8_t opcode = memory->read(PC++);
 
+    std::cout << std::uppercase
+              << "PC=" << std::hex << (int)(PC - 1)
+              << " OPCODE=" << std::hex << (int)opcode
+              << std::endl;
+
     /* NOP */
     if(opcode == 0x00)
-    {
         return;
-    }
 
     /* HLT */
     if(opcode == 0x76)
@@ -143,18 +147,23 @@ void CPU::step()
     {
         uint8_t reg = (opcode>>3) & 7;
         uint8_t value = memory->read(PC++);
+
         writeFromCode(reg,value);
+
+        std::cout<<"MVI executed\n";
         return;
     }
 
     /* MOV r1,r2 */
-    if((opcode & 0xC0) == 0x40)
+    if((opcode & 0xC0) == 0x40 && opcode != 0x76)
     {
         uint8_t dest = (opcode>>3) & 7;
         uint8_t src  = opcode & 7;
 
         uint8_t value = readFromCode(src);
         writeFromCode(dest,value);
+
+        std::cout<<"MOV executed\n";
         return;
     }
 
@@ -166,9 +175,10 @@ void CPU::step()
         uint8_t value = readFromCode(reg);
         value++;
 
-        writeFromCode(reg, value);
+        writeFromCode(reg,value);
         updateArithmeticFlags(value);
 
+        std::cout<<"INR executed\n";
         return;
     }
 
@@ -180,9 +190,10 @@ void CPU::step()
         uint8_t value = readFromCode(reg);
         value--;
 
-        writeFromCode(reg, value);
+        writeFromCode(reg,value);
         updateArithmeticFlags(value);
 
+        std::cout<<"DCR executed\n";
         return;
     }
 
@@ -197,6 +208,7 @@ void CPU::step()
         updateArithmeticFlags(result);
         A = result & 0xFF;
 
+        std::cout<<"ADD executed\n";
         return;
     }
 
@@ -211,6 +223,7 @@ void CPU::step()
         updateArithmeticFlags(result);
         A = result & 0xFF;
 
+        std::cout<<"SUB executed\n";
         return;
     }
 
@@ -223,10 +236,11 @@ void CPU::step()
         A = A & value;
 
         flags.CY = 0;
-        flags.Z = (A == 0);
-        flags.S = (A & 0x80) != 0;
-        flags.P = calculateParity(A);
+        flags.Z  = (A == 0);
+        flags.S  = (A & 0x80) != 0;
+        flags.P  = calculateParity(A);
 
+        std::cout<<"ANA executed\n";
         return;
     }
 
@@ -239,10 +253,11 @@ void CPU::step()
         A = A ^ value;
 
         flags.CY = 0;
-        flags.Z = (A == 0);
-        flags.S = (A & 0x80) != 0;
-        flags.P = calculateParity(A);
+        flags.Z  = (A == 0);
+        flags.S  = (A & 0x80) != 0;
+        flags.P  = calculateParity(A);
 
+        std::cout<<"XRA executed\n";
         return;
     }
 
@@ -255,10 +270,11 @@ void CPU::step()
         A = A | value;
 
         flags.CY = 0;
-        flags.Z = (A == 0);
-        flags.S = (A & 0x80) != 0;
-        flags.P = calculateParity(A);
+        flags.Z  = (A == 0);
+        flags.S  = (A & 0x80) != 0;
+        flags.P  = calculateParity(A);
 
+        std::cout<<"ORA executed\n";
         return;
     }
 
@@ -269,26 +285,28 @@ void CPU::step()
         uint8_t value = readFromCode(src);
 
         uint16_t result = A - value;
-
         updateArithmeticFlags(result);
 
+        std::cout<<"CMP executed\n";
         return;
     }
 
     /* JMP */
     if (opcode == 0xC3)
     {
-        uint8_t low = memory->read(PC++);
+        uint8_t low  = memory->read(PC++);
         uint8_t high = memory->read(PC++);
 
         PC = (high << 8) | low;
+
+        std::cout<<"JMP executed\n";
         return;
     }
 
     /* JZ */
     if (opcode == 0xCA)
     {
-        uint8_t low = memory->read(PC++);
+        uint8_t low  = memory->read(PC++);
         uint8_t high = memory->read(PC++);
 
         uint16_t address = (high << 8) | low;
@@ -296,13 +314,14 @@ void CPU::step()
         if(flags.Z)
             PC = address;
 
+        std::cout<<"JZ executed\n";
         return;
     }
 
     /* JNZ */
     if (opcode == 0xC2)
     {
-        uint8_t low = memory->read(PC++);
+        uint8_t low  = memory->read(PC++);
         uint8_t high = memory->read(PC++);
 
         uint16_t address = (high << 8) | low;
@@ -310,31 +329,36 @@ void CPU::step()
         if(!flags.Z)
             PC = address;
 
+        std::cout<<"JNZ executed\n";
         return;
     }
 
     /* CALL */
     if (opcode == 0xCD)
     {
-        uint8_t low = memory->read(PC++);
+        uint8_t low  = memory->read(PC++);
         uint8_t high = memory->read(PC++);
 
         uint16_t address = (high << 8) | low;
 
-        memory->write(--SP, (PC >> 8) & 0xFF);
-        memory->write(--SP, PC & 0xFF);
+        memory->write(--SP,(PC>>8)&0xFF);
+        memory->write(--SP,PC&0xFF);
 
         PC = address;
+
+        std::cout<<"CALL executed\n";
         return;
     }
 
     /* RET */
     if (opcode == 0xC9)
     {
-        uint8_t low = memory->read(SP++);
+        uint8_t low  = memory->read(SP++);
         uint8_t high = memory->read(SP++);
 
-        PC = (high << 8) | low;
+        PC = (high<<8)|low;
+
+        std::cout<<"RET executed\n";
         return;
     }
 
@@ -344,10 +368,11 @@ void CPU::step()
         uint8_t value = memory->read(PC++);
 
         uint16_t result = A + value;
-
         updateArithmeticFlags(result);
+
         A = result & 0xFF;
 
+        std::cout<<"ADI executed\n";
         return;
     }
 
@@ -357,10 +382,11 @@ void CPU::step()
         uint8_t value = memory->read(PC++);
 
         uint16_t result = A - value;
-
         updateArithmeticFlags(result);
+
         A = result & 0xFF;
 
+        std::cout<<"SUI executed\n";
         return;
     }
 
@@ -376,6 +402,7 @@ void CPU::step()
         flags.P = calculateParity(A);
         flags.CY = 0;
 
+        std::cout<<"ANI executed\n";
         return;
     }
 
@@ -391,6 +418,7 @@ void CPU::step()
         flags.P = calculateParity(A);
         flags.CY = 0;
 
+        std::cout<<"ORI executed\n";
         return;
     }
 

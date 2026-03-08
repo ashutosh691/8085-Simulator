@@ -3,6 +3,15 @@
 #include <sstream>
 #include <map>
 #include <iostream>
+#include <vector>
+
+static std::string trim(const std::string& s)
+{
+    size_t start = s.find_first_not_of(" \t");
+    size_t end   = s.find_last_not_of(" \t");
+    if(start == std::string::npos) return "";
+    return s.substr(start,end-start+1);
+}
 
 void assembleProgram(Memory& memory, const std::string& filename)
 {
@@ -14,71 +23,85 @@ void assembleProgram(Memory& memory, const std::string& filename)
         return;
     }
 
+    std::vector<std::string> lines;
+    std::map<std::string,int> labels;
+
     std::string line;
     int address = 0;
 
-    const std::map<std::string, uint8_t> opcode = {
-        {"HLT", 0x76},
-        {"ADD B", 0x80},
-        {"ADD C", 0x81},
-        {"ADD D", 0x82},
-        {"ADD E", 0x83},
-        {"ADD H", 0x84},
-        {"ADD L", 0x85},
-        {"ADD A", 0x87}
-    };
-
+    /* PASS 1 — collect labels */
     while(std::getline(file,line))
     {
-        if(line.empty())
-            continue;
+        line = trim(line);
+        if(line.empty()) continue;
 
-        /* Check simple instructions */
-        if(opcode.count(line))
+        if(line.back() == ':')
         {
-            memory.write(address++, opcode.at(line));
+            std::string label = line.substr(0,line.size()-1);
+            labels[label] = address;
             continue;
         }
 
-        /* Parse MVI instruction */
+        lines.push_back(line);
+
         if(line.find("MVI") == 0)
+            address += 2;
+        else if(line.find("JMP") == 0 ||
+                 line.find("JZ")  == 0 ||
+                 line.find("JNZ") == 0)
+            address += 3;
+        else
+            address += 1;
+    }
+
+    file.close();
+
+    /* PASS 2 — generate machine code */
+    address = 0;
+
+    for(const auto& line : lines)
+    {
+        if(line == "HLT")
         {
-            std::string reg;
-            std::string value;
-
+            memory.write(address++,0x76);
+        }
+        else if(line == "ADD B")
+        {
+            memory.write(address++,0x80);
+        }
+        else if(line == "DCR B")
+        {
+            memory.write(address++,0x05);
+        }
+        else if(line.find("MVI") == 0)
+        {
             std::stringstream ss(line);
-            std::string instruction;
+            std::string ins,reg,value;
 
-            ss >> instruction; // MVI
+            ss >> ins;
+            std::getline(ss,reg,',');
+            reg = trim(reg);
+            ss >> value;
 
-            std::getline(ss, reg, ',');   // read register
-            reg.erase(0,1);               // remove leading space
+            if(reg=="A") memory.write(address++,0x3E);
+            else if(reg=="B") memory.write(address++,0x06);
 
-            ss >> value;                  // read value
+            memory.write(address++,std::stoi(value,nullptr,16));
+        }
+        else if(line.find("JNZ") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins,label;
 
-            if(reg == "A")
-                memory.write(address++, 0x3E);
-            else if(reg == "B")
-                memory.write(address++, 0x06);
-            else if(reg == "C")
-                memory.write(address++, 0x0E);
-            else if(reg == "D")
-                memory.write(address++, 0x16);
-            else if(reg == "E")
-                memory.write(address++, 0x1E);
-            else if(reg == "H")
-                memory.write(address++, 0x26);
-            else if(reg == "L")
-                memory.write(address++, 0x2E);
-            else
-            {
-                std::cerr << "Unsupported register in MVI\n";
-                continue;
-            }
+            ss >> ins >> label;
 
-            memory.write(address++, std::stoi(value,nullptr,16));
+            int target = labels[label];
+
+            memory.write(address++,0xC2);
+            memory.write(address++, target & 0xFF);
+            memory.write(address++, (target>>8) & 0xFF);
         }
     }
 
-    std::cout << "Assembly completed successfully\n";
+    std::cout<<"Assembly completed successfully\n";
 }
