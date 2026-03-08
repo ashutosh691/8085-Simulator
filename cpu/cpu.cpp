@@ -210,6 +210,36 @@ void CPU::run()
             continue;
         }
 
+        // INR instruction group
+        if ((opcode & 0xC7) == 0x04)
+        {
+            uint8_t reg = (opcode >> 3) & 7;
+
+            uint8_t value = readFromCode(reg);
+            value++;
+
+            writeFromCode(reg, value);
+
+            updateArithmeticFlags(value);
+
+            continue;
+        }
+
+        // DCR instruction group
+        if ((opcode & 0xC7) == 0x05)
+        {
+            uint8_t reg = (opcode >> 3) & 7;
+
+            uint8_t value = readFromCode(reg);
+            value--;
+
+            writeFromCode(reg, value);
+
+            updateArithmeticFlags(value);
+
+            continue;
+        }
+
         /* ADD instruction group */
         if((opcode & 0xF8) == 0x80)
         {
@@ -243,4 +273,10 @@ void CPU::run()
     }
 
     std::cout<<"Final A="<<std::hex<<(int)A<<"\n";
+    std::cout<<"Final B="<<std::hex<<(int)B<<"\n";
+    std::cout<<"Final C="<<std::hex<<(int)C<<"\n";
+    std::cout<<"Final D="<<std::hex<<(int)D<<"\n";
+    std::cout<<"Final E="<<std::hex<<(int)E<<"\n";
+    std::cout<<"Final H="<<std::hex<<(int)H<<"\n";
+    std::cout<<"Final L="<<std::hex<<(int)L<<"\n";
 }
