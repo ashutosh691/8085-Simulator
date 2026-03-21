@@ -46,10 +46,24 @@ void assembleProgram(Memory& memory, const std::string& filename)
 
         if(line.find("MVI") == 0)
             address += 2;
+        else if(line.find("ADI") == 0 ||
+                 line.find("SUI") == 0 ||
+                 line.find("ANI") == 0 ||
+                 line.find("ORI") == 0)
+        {
+            address += 2;
+        }
         else if(line.find("JMP") == 0 ||
                  line.find("JZ")  == 0 ||
                  line.find("JNZ") == 0)
             address += 3;
+        else if(line.find("LDA") == 0 ||
+                 line.find("STA") == 0 ||
+                 line.find("LHLD") == 0 ||
+                 line.find("SHLD") == 0)
+        {
+            address += 3;
+        }
         else
             address += 1;
     }
@@ -100,6 +114,100 @@ void assembleProgram(Memory& memory, const std::string& filename)
             memory.write(address++,0xC2);
             memory.write(address++, target & 0xFF);
             memory.write(address++, (target>>8) & 0xFF);
+        }
+        else if(line.find("ADI") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, value;
+
+            ss >> ins >> value;
+
+            memory.write(address++, 0xC6);
+            memory.write(address++, std::stoi(value, nullptr, 16));
+        }
+        else if(line.find("SUI") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, value;
+
+            ss >> ins >> value;
+
+            memory.write(address++, 0xD6);
+            memory.write(address++, std::stoi(value, nullptr, 16));
+        }
+
+        else if(line.find("ANI") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, value;
+
+            ss >> ins >> value;
+
+            memory.write(address++, 0xE6);
+            memory.write(address++, std::stoi(value, nullptr, 16));
+        }
+
+        else if(line.find("ORI") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, value;
+
+            ss >> ins >> value;
+
+            memory.write(address++, 0xF6);
+            memory.write(address++, std::stoi(value, nullptr, 16));
+        }
+        else if(line.find("LDA") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, addr_str;
+
+            ss >> ins >> addr_str;
+
+            int addr = std::stoi(addr_str, nullptr, 16);
+
+            memory.write(address++, 0x3A);
+            memory.write(address++, addr & 0xFF);         // low byte
+            memory.write(address++, (addr >> 8) & 0xFF);  // high byte
+        }
+        else if(line.find("STA") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, addr_str;
+
+            ss >> ins >> addr_str;
+
+            int addr = std::stoi(addr_str, nullptr, 16);
+
+            memory.write(address++, 0x32);
+            memory.write(address++, addr & 0xFF);
+            memory.write(address++, (addr >> 8) & 0xFF);
+        }
+        else if(line.find("LHLD") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, addr_str;
+
+            ss >> ins >> addr_str;
+
+            int addr = std::stoi(addr_str, nullptr, 16);
+
+            memory.write(address++, 0x2A);
+            memory.write(address++, addr & 0xFF);
+            memory.write(address++, (addr >> 8) & 0xFF);
+        }
+        else if(line.find("SHLD") == 0)
+        {
+            std::stringstream ss(line);
+            std::string ins, addr_str;
+
+            ss >> ins >> addr_str;
+
+            int addr = std::stoi(addr_str, nullptr, 16);
+
+            memory.write(address++, 0x22);
+            memory.write(address++, addr & 0xFF);
+            memory.write(address++, (addr >> 8) & 0xFF);
         }
     }
 

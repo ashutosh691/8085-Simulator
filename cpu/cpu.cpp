@@ -97,6 +97,15 @@ void CPU::dumpRegisters()
     std::cout << "L=" << std::hex << (int)L << "\n";
 }
 
+void CPU::dumpMemory(uint16_t start, uint16_t end)
+{
+    for(uint16_t i = start; i <= end; i++)
+    {
+        std::cout << "MEM[" << std::hex << i << "] = "
+                  << (int)memory->read(i) << "\n";
+    }
+}
+
 /*
 ---------------------------------------------------------
 RUN LOOP
@@ -110,6 +119,9 @@ void CPU::run()
         step();
         dumpRegisters();
     }
+
+    std::cout << "\n--- Memory Dump ---\n";
+    dumpMemory(0x2000, 0x2001);
 }
 
 /*
@@ -419,6 +431,47 @@ void CPU::step()
         std::cout<<"ORI executed\n";
         return;
     }
+
+    /* LDA */
+    if(opcode == 0x3A)
+    {
+        uint8_t low = memory->read(PC++);
+        uint8_t high = memory->read(PC++);
+
+        uint16_t addr = (high << 8) | low;
+
+        A = memory->read(addr);
+
+        return;
+    }
+
+    /* STA */
+    if(opcode == 0x32)
+    {
+        uint8_t low = memory->read(PC++);
+        uint8_t high = memory->read(PC++);
+
+        uint16_t addr = (high << 8) | low;
+
+        memory->write(addr, A);
+
+        return;
+    }
+
+    /* SHLD */
+    if(opcode == 0x2A)
+    {
+        uint8_t low = memory->read(PC++);
+        uint8_t high = memory->read(PC++);
+
+        uint16_t addr = (high << 8) | low;
+
+        L = memory->read(addr);
+        H = memory->read(addr + 1);
+
+        return;
+    }
+
 
     std::cout<<"Unknown opcode: "<<std::hex<<(int)opcode<<"\n";
     halted = true;

@@ -99,6 +99,8 @@ private:
     //Prints values of registers
     void dumpRegisters();
 
+    void dumpMemory(uint16_t start, uint16_t end);
+
     void step();
 };
 
